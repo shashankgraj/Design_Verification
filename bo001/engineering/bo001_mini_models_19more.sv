@@ -65,7 +65,7 @@ module bo_irq_affinity #(parameter FAULT=0)(input logic request,input logic targ
 always @* begin irq0=request&&(FAULT||!target_hart1);irq1=request&&!FAULT&&target_hart1;end
 endmodule
 module bo_auth_image #(parameter FAULT=0)(input logic test_mode,valid_prod_signer,valid_test_signer,output logic accepted);
-always @* accepted=FAULT?valid_prod_signer:((test_mode&&valid_test_signer)||(!test_mode&&valid_prod_signer));
+assign accepted = FAULT ? valid_prod_signer : ((test_mode && valid_test_signer) || (!test_mode && valid_prod_signer));
 endmodule
 module bo_transactor #(parameter FAULT=0)(input logic clk,rst_n,host_valid,target_ready,output logic accepted);
 always @(posedge clk or negedge rst_n)if(!rst_n)accepted<=0;else accepted<=host_valid&&target_ready&&!FAULT;
