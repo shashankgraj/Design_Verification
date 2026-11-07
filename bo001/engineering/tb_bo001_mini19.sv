@@ -80,6 +80,7 @@ if(gnt0_g!==0||gnt1_g!==1||gnt0_b!==1||gnt1_b!==0)$fatal(1,"C25");$display("PASS
 irq_request=1;target1=1;#1;
 if(irq0_g!==0||irq1_g!==1||irq0_b!==1||irq1_b!==0)$fatal(1,"C27");$display("PASS MINI C27");
 test_mode=1;prod_signer=0;test_signer=1;#1;
+$display("DBG C29 inputs test=%b prod=%b t_signer=%b outputs good=%b bad=%b",test_mode,prod_signer,test_signer,auth_g,auth_b);
 if(auth_g!==1||auth_b!==0)$fatal(1,"C29");$display("PASS MINI C29");
 host_valid=1;target_ready=1;tick();
 if(accept_g!==1||accept_b!==0)$fatal(1,"C33");$display("PASS MINI C33");
