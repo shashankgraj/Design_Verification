@@ -6,7 +6,7 @@ module tb_bo001_mini14;
 reg clk=0; always #5 clk=~clk;
 reg rst_n=0, strap_valid=0, write_release=0, clock_stable=0,
     subsys_reset=0, irq_event=0, wr_en=0,psel=0,penable=0,
-    ack=0,event=0,w1c_wr=0,start=0,complete=0,dma_done=0,data_visible=0;
+    ack=0,event_in=0,w1c_wr=0,start=0,complete=0,dma_done=0,data_visible=0;
 reg [31:0] strap_addr=32'h00010000,decode_addr=0,wdata=0;
 reg [1:0]target=0;
 reg[3:0]strb=0,clear_bits=0;
@@ -31,8 +31,8 @@ bo_byte_strobes #(0) c12g(clk,rst_n,wr_en,strb,wdata,reg_good);
 bo_byte_strobes #(1) c12b(clk,rst_n,wr_en,strb,wdata,reg_bad);
 bo_apb_ready #(0) c13g(clk,rst_n,psel,penable,ack,pready_good);
 bo_apb_ready #(1) c13b(clk,rst_n,psel,penable,ack,pready_bad);
-bo_w1c #(0) c15g(clk,rst_n,event,w1c_wr,clear_bits,status_good);
-bo_w1c #(1) c15b(clk,rst_n,event,w1c_wr,clear_bits,status_bad);
+bo_w1c #(0) c15g(clk,rst_n,event_in,w1c_wr,clear_bits,status_good);
+bo_w1c #(1) c15b(clk,rst_n,event_in,w1c_wr,clear_bits,status_bad);
 bo_pll_lock #(0) c17g(clk,rst_n,lock_good);
 bo_pll_lock #(1) c17b(clk,rst_n,lock_bad);
 bo_dma_address #(0) c22g(addr_hi,addr_lo,dma_good);
@@ -63,7 +63,7 @@ initial begin
   if(reg_good!==32'h00CC0000||reg_bad!==0)$fatal(1,"C12 byte strobe");$display("PASS MINI C12");
   wr_en=0;psel=1;penable=1;ack=1;tick();
   if(pready_good!==1||pready_bad!==0)$fatal(1,"C13 APB ready");$display("PASS MINI C13");
-  psel=0;penable=0;ack=0;event=1;tick();event=0;w1c_wr=1;clear_bits=4'b0100;tick();
+  psel=0;penable=0;ack=0;event_in=1;tick();event_in=0;w1c_wr=1;clear_bits=4'b0100;tick();
   if(status_good!==0||status_bad!==4'b0100)$fatal(1,"C15 W1C");$display("PASS MINI C15");
   w1c_wr=0;repeat(4)tick();
   if(lock_good!==1||lock_bad!==0)$fatal(1,"C17 PLL lock");$display("PASS MINI C17");
