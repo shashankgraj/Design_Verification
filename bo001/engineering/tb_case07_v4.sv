@@ -55,6 +55,11 @@ module tb_case07_v4;
       $fatal(1,"FULL flags inconsistent with occupancy");
   endtask
 
+  task automatic assert_head(input logic [31:0] expected);
+    if (rd_ok !== expected || rd_bad !== expected)
+      $fatal(1,"FIFO head mismatch expected=%h good=%h bad=%h",expected,rd_ok,rd_bad);
+  endtask
+
   integer n,i;
   initial begin
     $dumpfile("case07_v4.vcd");$dumpvars(0,tb_case07_v4);
@@ -76,9 +81,25 @@ module tb_case07_v4;
     for(i=0;i<8;i=i+1)enqueue(i);
     enqueue(32'hDEAD);
     assert_levels(8,8);
+    assert_head(32'd0);
     dequeue();assert_levels(7,7);
+    assert_head(32'd1);
+    enqueue(32'h00008888); // pointer wraps to slot 0
+    assert_levels(8,8);
+    for (i=1; i<8; i=i+1) begin
+      assert_head(i);
+      dequeue();
+      assert_levels(8-i,8-i);
+    end
+    assert_head(32'h00008888);
+    dequeue();assert_levels(0,0);
+    dequeue();assert_levels(0,0); // ignored underflow
+    enqueue(32'hAB);enqueue(32'hCD);
+    assert_levels(2,2);
     peripheral_reset();assert_levels(0,0);
+    if (rd_ok !== 0 || rd_bad !== 0) $fatal(1,"RD_DATA nonzero after clear");
     if(en_ok !== 0 || en_bad !== 0)$fatal(1,"Peripheral reset failed to clear enable");
+    $display("PASS payload FIFO ordering, full/empty boundaries, pointer wrap, and peripheral reset");
     $display("PASS Case 07 v4: levels 0..8, warm resets, flush, FIFO full boundary and peripheral reset");
     $finish;
   end
