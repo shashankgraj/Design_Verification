@@ -4,7 +4,7 @@
 // por_n asynchronously asserts; its deassertion must be synchronized upstream.
 // DEPTH fixed at 8. No AXI/APB or CDC modeled.
 // Simultaneous push/pop are INVALID inputs and must be excluded by integration contract.
-module bo_mailbox_fifo_v3 #(
+module bo_mailbox_fifo_v4 #(
     parameter bit FAULT_INJECTION = 1'b0
 )(
     input logic clk,por_n,warm_rst_n,periph_rst_n,
