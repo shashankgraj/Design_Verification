@@ -40,10 +40,10 @@ module bo_apb_ready #(parameter FAULT=0)(input logic clk,rst_n,psel,penable,inpu
     if(!rst_n)pready<=0;
     else pready<=FAULT ? (psel && penable && 1'b0) : (psel && penable && peripheral_ack);
 endmodule
-module bo_w1c #(parameter FAULT=0)(input logic clk,rst_n,event,set_write,input logic[3:0] write_bits,output logic[3:0] status);
+module bo_w1c #(parameter FAULT=0)(input logic clk,rst_n,event_in,set_write,input logic[3:0] write_bits,output logic[3:0] status);
   always @(posedge clk or negedge rst_n)
     if(!rst_n)status<=0;
-    else if(event)status<=status|4'b0100;
+    else if(event_in)status<=status|4'b0100;
     else if(set_write)status<=FAULT ? write_bits : (status & ~write_bits);
 endmodule
 module bo_pll_lock #(parameter FAULT=0)(input logic clk,rst_n,output logic locked);
