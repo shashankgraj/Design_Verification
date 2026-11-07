@@ -1,0 +1,36 @@
+name: BO001 Case07 Actual RTL Simulation
+on:
+  push:
+    branches: [bo001-rtl-ci]
+    paths:
+      - 'bo001/**'
+      - '.github/workflows/bo001-case07.yml'
+  workflow_dispatch:
+jobs:
+  case07:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install real Icarus Verilog toolchain
+        run: sudo apt-get update && sudo apt-get install -y iverilog
+      - name: Compile and execute SystemVerilog
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p bo001/results
+          iverilog -V > bo001/results/iverilog_version.txt 2>&1
+          iverilog -g2012 -Wall -s tb_case07_v4 -o bo001/results/case07.vvp bo001/engineering/bo_mailbox_fifo_v4.sv bo001/engineering/tb_case07_v4.sv 2>&1 | tee bo001/results/compile.log
+          vvp bo001/results/case07.vvp 2>&1 | tee bo001/results/simulation.log
+          test "$(grep -c '^PASS occupancy=' bo001/results/simulation.log)" -eq 9
+          grep -q '^PASS Case 07 v4:' bo001/results/simulation.log
+          test -s case07_v4.vcd
+          mv case07_v4.vcd bo001/results/case07_v4.vcd
+          echo "ACTUAL RTL SIMULATION PASSED"
+      - name: Archive actual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bo001-case07-rtl-evidence
+          path: bo001/results/
+          if-no-files-found: warn
