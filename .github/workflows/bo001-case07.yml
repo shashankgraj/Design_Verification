@@ -34,6 +34,21 @@ jobs:
           sudo apt-get install -y verilator
           verilator --version | tee bo001/results/verilator_version.txt
           verilator --lint-only -Wall -Wno-fatal --top-module bo_mailbox_fifo_v4 bo001/engineering/bo_mailbox_fifo_v4.sv 2>&1 | tee bo001/results/verilator_lint.log
+      - name: Compile and test 14 additional fault-injection mini models
+        shell: bash
+        run: |
+          set -euo pipefail
+          iverilog -g2012 -Wall -s tb_bo001_mini14 -o bo001/results/mini14.vvp bo001/engineering/bo001_mini_models_14cases.sv bo001/engineering/tb_bo001_mini14.sv 2>&1 | tee bo001/results/mini14_compile.log
+          vvp bo001/results/mini14.vvp 2>&1 | tee bo001/results/mini14_simulation.log
+          test "$(grep -c '^PASS MINI C' bo001/results/mini14_simulation.log)" -eq 14
+          grep -q '^PASS ALL 14 DISTINCT MINIATURE RTL DEMONSTRATIONS' bo001/results/mini14_simulation.log
+          test -s bo001_mini14.vcd
+          mv bo001_mini14.vcd bo001/results/bo001_mini14.vcd
+      - name: Verilator lint for mini RTL models
+        shell: bash
+        run: |
+          set -euo pipefail
+          verilator --lint-only -Wno-fatal --top-module bo_boot_vector bo001/engineering/bo001_mini_models_14cases.sv 2>&1 | tee bo001/results/mini14_verilator_lint.log
       - name: Archive actual evidence
         if: always()
         uses: actions/upload-artifact@v4
