@@ -74,6 +74,19 @@ jobs:
             verilator --lint-only -Wno-fatal --top-module "$top" bo001/engineering/bo001_mini_models_19more.sv 2>&1 | tee -a bo001/results/mini19_verilator_lint.log
           done
           test "$(grep -c '^LINT TOP:' bo001/results/mini19_verilator_lint.log)" -eq 19
+      - name: Run six host, build, and evidence-oriented case checks (NOT RTL)
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m unittest -v bo001/verification/test_nonrtl_6cases.py 2>&1 | tee bo001/results/nonrtl_six.log
+          test "$(grep -c '^test_C' bo001/results/nonrtl_six.log)" -eq 6
+          grep -q '^OK        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bo001-case07-rtl-evidence
+          path: bo001/results/
+          if-no-files-found: warn
+ bo001/results/nonrtl_six.log
       - name: Archive actual evidence
         if: always()
         uses: actions/upload-artifact@v4
