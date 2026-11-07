@@ -54,6 +54,26 @@ jobs:
             verilator --lint-only -Wno-fatal --top-module "$top" bo001/engineering/bo001_mini_models_14cases.sv 2>&1 | tee -a bo001/results/mini14_verilator_lint.log
           done
           test "$(grep -c '^LINT TOP:' bo001/results/mini14_verilator_lint.log)" -eq 14
+      - name: Compile and simulate 19 additional scenario-specific RTL models
+        shell: bash
+        run: |
+          set -euo pipefail
+          iverilog -g2012 -Wall -s tb_bo001_mini19 -o bo001/results/mini19.vvp bo001/engineering/bo001_mini_models_19more.sv bo001/engineering/tb_bo001_mini19.sv 2>&1 | tee bo001/results/mini19_compile.log
+          vvp bo001/results/mini19.vvp 2>&1 | tee bo001/results/mini19_simulation.log
+          test "$(grep -c '^PASS MINI C' bo001/results/mini19_simulation.log)" -eq 19
+          grep -q '^PASS ALL 19 ADDITIONAL DISTINCT MINI RTL MODELS' bo001/results/mini19_simulation.log
+          test -s bo001_mini19.vcd
+          mv bo001_mini19.vcd bo001/results/bo001_mini19.vcd
+      - name: Verilator lint all 19 more mini RTL models
+        shell: bash
+        run: |
+          set -euo pipefail
+          : > bo001/results/mini19_verilator_lint.log
+          for top in bo_uart_observe bo_dram_training bo_image_bounds bo_axi_reset_outstanding bo_short_reset_capture bo_status_shadow bo_gate_outstanding bo_freq_timeout bo_isolation bo_wake_latch bo_dram_mapping bo_cache_dma bo_ecc_classify bo_arbiter bo_irq_affinity bo_auth_image bo_transactor bo_shared_reset bo_secure_transition; do
+            echo "LINT TOP: $top" | tee -a bo001/results/mini19_verilator_lint.log
+            verilator --lint-only -Wno-fatal --top-module "$top" bo001/engineering/bo001_mini_models_19more.sv 2>&1 | tee -a bo001/results/mini19_verilator_lint.log
+          done
+          test "$(grep -c '^LINT TOP:' bo001/results/mini19_verilator_lint.log)" -eq 19
       - name: Archive actual evidence
         if: always()
         uses: actions/upload-artifact@v4
