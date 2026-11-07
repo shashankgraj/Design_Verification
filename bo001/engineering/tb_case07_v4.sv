@@ -10,10 +10,10 @@ module tb_case07_v4;
   wire [3:0] lvl_ok,lvl_bad;
   wire empty_ok,full_ok,en_ok,empty_bad,full_bad,en_bad;
 
-  bo_mailbox_fifo_v3 #(.FAULT_INJECTION(1'b0)) healthy (
+  bo_mailbox_fifo_v4 #(.FAULT_INJECTION(1'b0)) healthy (
    .clk,.por_n,.warm_rst_n,.periph_rst_n,.en_wr,.en_val,.flush,.push,.pop,.wr_data,
    .rd_data(rd_ok),.level(lvl_ok),.empty(empty_ok),.full(full_ok),.enabled(en_ok));
-  bo_mailbox_fifo_v3 #(.FAULT_INJECTION(1'b1)) faulty (
+  bo_mailbox_fifo_v4 #(.FAULT_INJECTION(1'b1)) faulty (
    .clk,.por_n,.warm_rst_n,.periph_rst_n,.en_wr,.en_val,.flush,.push,.pop,.wr_data,
    .rd_data(rd_bad),.level(lvl_bad),.empty(empty_bad),.full(full_bad),.enabled(en_bad));
 
