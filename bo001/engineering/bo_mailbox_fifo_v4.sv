@@ -1,3 +1,4 @@
+`timescale 1ns/1ps
 // BO-SoC1 Case 07: EDUCATIONAL, FICTIONAL RTL ONLY.
 // Single clock; warm_rst_n and periph_rst_n are synchronous active-low reset requests.
 // por_n asynchronously asserts; its deassertion must be synchronized upstream.
