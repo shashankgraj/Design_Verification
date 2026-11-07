@@ -48,7 +48,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          verilator --lint-only -Wno-fatal --top-module bo_boot_vector bo001/engineering/bo001_mini_models_14cases.sv 2>&1 | tee bo001/results/mini14_verilator_lint.log
+          : > bo001/results/mini14_verilator_lint.log
+          for top in bo_boot_vector bo_hart_release bo_reset_clock_order bo_sticky_irq bo_axi_decode bo_byte_strobes bo_apb_ready bo_w1c bo_pll_lock bo_dma_address bo_irq_enable bo_privilege bo_busy bo_dma_irq_order; do
+            echo "LINT TOP: $top" | tee -a bo001/results/mini14_verilator_lint.log
+            verilator --lint-only -Wno-fatal --top-module "$top" bo001/engineering/bo001_mini_models_14cases.sv 2>&1 | tee -a bo001/results/mini14_verilator_lint.log
+          done
+          test "$(grep -c '^LINT TOP:' bo001/results/mini14_verilator_lint.log)" -eq 14
       - name: Archive actual evidence
         if: always()
         uses: actions/upload-artifact@v4
